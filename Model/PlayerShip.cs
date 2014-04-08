@@ -15,33 +15,23 @@ namespace Model
             this.Power = power;
         }
 
-        public void MoveUp()
+        public void Move(double dx, double dy)
         {
-            this.dy = -1;
-        }
+            Utils.Normalise(ref dx, ref dy);
 
-        public void MoveDown()
-        {
-            this.dy = 1;
-        }
-
-        public void MoveLeft()
-        {
-            this.dx = -1;
-        }
-
-        public void MoveRight()
-        {
-            this.dy = 1;
+            this.XPos += Convert.ToInt32(dx * this.speed);
+            this.YPos += Convert.ToInt32(dy * this.speed);
         }
 
         public Projectyle Shoot()
         {
             // produce obiecte de tip PlayerProjectyle cu puterea = puterea proprie. Ceva de genul:
-            return new PlayerProjectyle(10, this.Power);
+            // return new PlayerProjectyle(10, this.Power);
             throw new NotImplementedException();
         }
 
         public int Power { get; protected set; }
+
+        // ar trebui sa avem o clasa cu utils
     }
 }

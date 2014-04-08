@@ -8,6 +8,11 @@ namespace Model
 {
     interface ICollidable
     {
+        int Top { get; }
+        int Bottom { get; }
+        int Left { get; }
+        int Right { get; }
+
         bool IsCollidingWith(ICollidable other);
     }
 }

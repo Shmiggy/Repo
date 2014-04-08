@@ -29,21 +29,13 @@ namespace Model
                 this.IsActive = false;
             }
 
-            // Miscarea navei
-            this.XPos += this.speed * this.dx;
-            this.YPos += this.speed * this.dy;
-
             throw new NotImplementedException();
         }
 
         // viata
         public int Life { get; protected set; }
 
-        // viteza cu care se deplaseaza.
+        // viteza cu care se deplaseaza(pixeli per mutare).
         protected int speed;
-
-        // directia de desplasare, apartine {-1, 0, 1}
-        protected int dx;
-        protected int dy;
     }
 }

@@ -25,7 +25,30 @@ namespace Model
         // implementata aici pentru ca are aceeasi implementare pt toate entitatile
         public bool IsCollidingWith(ICollidable other)
         {
-            throw new NotImplementedException();
+            return !(other.Left > this.Right ||
+                        other.Right < this.Left ||
+                        other.Top > this.Bottom ||
+                        other.Bottom < this.Top);
+        }
+
+        public int Top
+        {
+            get { return YPos; }
+        }
+
+        public int Bottom
+        {
+            get { return YPos + Height; }
+        }
+
+        public int Left
+        {
+            get { return XPos; }
+        }
+
+        public int Right
+        {
+            get { return XPos + Width; }
         }
     }
 }
