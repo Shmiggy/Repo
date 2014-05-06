@@ -16,10 +16,20 @@ namespace SSSG
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
+        //test
+        AnimatedBackGround backGround = new AnimatedBackGround();
+        //test-inter
+        public Animation animTest,animTest2;
+        Vector2 o,l;
+        static int i = 0;
+        //test
+
         public DesignPattern()
         {
             graphics = new GraphicsDeviceManager(this);
-            //Content.RootDirectory = "Content";
+            graphics.IsFullScreen = false;
+            graphics.PreferredBackBufferHeight = 600;
+            graphics.PreferredBackBufferWidth = 800;
         }
 
         protected override void Initialize()
@@ -31,68 +41,68 @@ namespace SSSG
         protected override void LoadContent()
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
-
-            // TODO: use this.Content to load your game content here
             Assets.Instance().LoadGameAssets(Content);
+
+            //test
+            o.Y = 300;
+            o.X = 100;
+            l.Y = 300;
+            l.X = 300;
+            animTest = new Animation();
+            animTest.Initialize(Assets.Instance().getTexture(GameAssets.ASSET_TEXTURE_REAPER), o, 128, 96, 11, 60);
+            animTest2 = new Animation();
+            animTest2.Initialize(Assets.Instance().getTexture(GameAssets.ASSET_TEXTURE_ROCKET), l, 64, 16, 6, 60);
+            //test-inter
+            backGround.Initialize(Assets.Instance().getTexture(GameAssets.ASSET_TEXTURE_STARS), 800, 1);
+            //test
         }
 
         protected override void UnloadContent()
         {
-            // TODO: Unload any non ContentManager content here
             Assets.Instance().UnloadGameAssets(Content);
         }
 
         protected override void Update(GameTime gameTime)
         {
-            // Allows the game to exit
             if (Keyboard.GetState().IsKeyDown(Keys.Escape))
             {
                 this.Exit();
             }
-            
-
-            // TODO: Add your update logic here
-
             base.Update(gameTime);
+
+            //test
+            animTest.Update(gameTime,i,o);
+            if (gameTime.TotalGameTime.Seconds % 6 == 0)
+            {
+                i = -1;
+                o.Y++;
+            }
+            else if (gameTime.TotalGameTime.Seconds % 6 == 2)
+            {
+                i = 1;
+                o.Y--;
+            }
+            else
+            {
+                i = 0;
+            }
+            animTest2.Update(gameTime,l);
+            //test-inter
+            backGround.Update();
+            //test
         }
 
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
-            spriteBatch.Begin(); 
-            // TODO: Add your drawing code here
-
+            spriteBatch.Begin();
 
             //test
-            Vector2 o;
-            o.X = 100;
-            o.Y = 100;
-            if (gameTime.TotalGameTime.Seconds >= 5)
-            {
-                Texture2D a;
-                a = Assets.Instance().getTexture(GameAssets.ASSET_TEXTURE_EXAMPLE);
-                spriteBatch.Draw(a, o, null, Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0f);
-            }
-            if (gameTime.TotalGameTime.Seconds >= 1)
-            {
-                SpriteFont a;
-                a = Assets.Instance().getSpriteFont();
-                spriteBatch.DrawString(a, "Asset Loading !", new Vector2(GraphicsDevice.Viewport.TitleSafeArea.X, GraphicsDevice.Viewport.TitleSafeArea.Y), Color.White);
-            }
-            if (gameTime.TotalGameTime.Seconds == 5 && gameTime.TotalGameTime.Milliseconds == 0 )
-            {
-                SoundEffect a;
-                a = Assets.Instance().getSoundFX(GameAssets.ASSET_SOUNDFX_EXAMPLE);
-                a.Play();
-            }
-            if (gameTime.TotalGameTime.Seconds == 1 && gameTime.TotalGameTime.Milliseconds == 0)
-            {
-                Song a;
-                a = Assets.Instance().getSong(GameAssets.ASSET_SONG_EXAMPLE);
-                MediaPlayer.Play(a);
-            }
+            backGround.Draw(spriteBatch);
+            //test-inter
+            animTest.Draw(spriteBatch);
+            animTest2.Draw(spriteBatch);
             //test
-            
 
             spriteBatch.End(); 
             base.Draw(gameTime);

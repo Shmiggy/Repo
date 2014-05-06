@@ -13,13 +13,15 @@ namespace SSSG
 {
     public enum GameAssets
     {
-        ASSET_TEXTURE_EXAMPLE = 0,      //poze
+        ASSET_TEXTURE_ROCKET = 0,      //poze
+        ASSET_TEXTURE_REAPER,
+        ASSET_TEXTURE_STARS,
         ASSET_TEXTURE_END,
 
-        ASSET_SOUNDFX_EXAMPLE,          //efecte sonore
+        ASSET_SOUNDFX_EXPLOSION,          //efecte sonore
         ASSET_SOUNDFX_END,
 
-        ASSET_SONG_EXAMPLE,             //cantece
+        ASSET_SONG_GAME_MUSIC,             //cantece
         ASSET_SONG_END
     };
 
@@ -30,6 +32,10 @@ namespace SSSG
         private SoundEffect[] soundFxAssets;
         private Song[] songAssets;
         private SpriteFont fontAsset;
+
+        private string[] texAssetsList = new string[] { "Textures/Rocket", "Textures/Reaper", "Textures/Stars" };
+        private string[] soundAssetsList = new string[] { "Sounds/explosion" };
+        private string[] songAssetsList = new string[] { "Sounds/gameMusic" };
 
         private Object GetAsset(int assetCounter)
         {
@@ -91,7 +97,7 @@ namespace SSSG
             for (int i = 0; i < (int)GameAssets.ASSET_TEXTURE_END; i++)
             {
                 file.Write("Game texture " + i + " ...\t\t\t");
-                graphicAssets[i] = Content.Load<Texture2D>("Textures/BallLightningSmall");
+                graphicAssets[i] = Content.Load<Texture2D>(texAssetsList[i]);
                 if (graphicAssets[i] != null)
                 {
                     file.WriteLine("Done Succesfully");
@@ -104,7 +110,7 @@ namespace SSSG
             for (int i = 0; i < (int)GameAssets.ASSET_SOUNDFX_END - (int)GameAssets.ASSET_TEXTURE_END - 1; i++)
             {
                 file.Write("Game soundFX " + i + " ...\t\t\t");
-                soundFxAssets[i] = Content.Load<SoundEffect>("Sounds/explosion");
+                soundFxAssets[i] = Content.Load<SoundEffect>(soundAssetsList[i]);
                 if (soundFxAssets[i] != null)
                 {
                     file.WriteLine("Done Succesfully");
@@ -117,7 +123,7 @@ namespace SSSG
             for (int i = 0; i < (int)GameAssets.ASSET_SONG_END - (int)GameAssets.ASSET_SOUNDFX_END - 1; i++)
             {
                 file.Write("Game song files " + i + " ...\t\t\t");
-                songAssets[i] = Content.Load<Song>("Sounds/gameMusic");
+                songAssets[i] = Content.Load<Song>(songAssetsList[i]);
                 if (songAssets[i] != null)
                 {
                     file.WriteLine("Done Succesfully");
