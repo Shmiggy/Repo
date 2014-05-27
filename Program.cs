@@ -1,16 +1,16 @@
-using System;
-
 namespace SSSG
 {
+    using SSSG.Input;
+
 #if WINDOWS || XBOX
     static class Program
     {
         static void Main(string[] args)
         {
-            using (DesignPattern game = new DesignPattern())
-            {
-                game.Run();
-            }
+            DeepSpaceShooterGame.Instance.MouseInput = new MouseInput();
+            DeepSpaceShooterGame.Instance.KeyboardInput = new KeyboardInput();
+
+            DeepSpaceShooterGame.Instance.Run();
         }
     }
 #endif
