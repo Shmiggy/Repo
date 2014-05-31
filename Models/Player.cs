@@ -36,9 +36,19 @@
         }
 
         // TODO: implement Factory Method
+		// Done(Alex)
         public void PlayerShoot(int type)
         {
-            Projectile newProj = new Projectile(type, Position);
+			Projectile newProj;
+			if ( type == 1 )
+			{
+				newProj = new BeamProjectile(Position);
+			}
+			else
+			{
+				newProj = new RocketProjectile(Position);
+			}
+            //Projectile newProj = new Projectile(type, Position);
             Projectiles.Add(newProj);
         }
 

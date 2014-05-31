@@ -46,6 +46,7 @@
         }
 
         // TODO: take a deep breath and refactor this
+		// *Quietly walking away*  -- Alex
         public void Update(GameTime gameTime, GameModel model)
         {
             animPlayer.UpdateByInput(gameTime, model.CurrentPlayer.Tilt, model.CurrentPlayer.Position);
