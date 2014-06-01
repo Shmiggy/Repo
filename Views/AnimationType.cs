@@ -1,7 +1,7 @@
 ﻿
 namespace SSSG.Views
 {
-    public enum AnimationTypes
+    public enum AnimationType
     {
         NONE,
         PLAYER,

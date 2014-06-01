@@ -15,8 +15,9 @@
         private int frameWidth;
         private int frameHeight;
         private Vector2 position;
+        public AnimationType Type { get; set; }
 
-        public void Initialize(Texture2D texture, Vector2 position, int frameWidth, int frameHeight, int frameCount, int frameTime, int frameStart)
+        public Animation(Texture2D texture, Vector2 position, int frameWidth, int frameHeight, int frameCount, int frameTime, int frameStart, AnimationType type)
         {
             this.frameWidth = frameWidth;
             this.frameHeight = frameHeight;
@@ -28,6 +29,7 @@
 
             this.elapsedTime = 0;
             this.currentFrame = frameStart;
+            this.Type = type;
         }
 
         public void UpdateByInput(GameTime gameTime, int input, Vector2 position)

@@ -194,7 +194,7 @@
 
         #region IGameModel Members
 
-        public IEnumerable<Projectile> OnScreenProjectiles
+        public Projectile[] OnScreenProjectiles
         {
             get
             {
@@ -202,7 +202,7 @@
             }
         }
 
-        public IEnumerable<Enemy> OnScreenEnemies
+        public Enemy[] OnScreenEnemies
         {
             get
             {
