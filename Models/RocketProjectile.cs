@@ -60,7 +60,7 @@
 
         static RocketProjectile()
         {
-            ProjectileFactory.addFactory(ProjectileType.Rocket, new Factory());
+            ProjectileFactory.AddFactory(ProjectileType.Rocket, new Factory());
         }
 
     }

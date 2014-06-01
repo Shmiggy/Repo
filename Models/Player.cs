@@ -36,15 +36,18 @@
         }
 
 
-        public void Shoot(ProjectileType type)
+        public Projectile Shoot(ProjectileType type)
         {
             Projectile projectile = ProjectileFactory.CreateProjectile(type, Position);
-            if ( projectile != null )
-            {
-                Projectiles.Add(projectile);
-            }
-        }
 
+            if ( projectile == null )
+            {
+                throw new ArgumentException(string.Format("The projectile type {0} is not valid.", type.ToString()));
+            }
+
+            Projectiles.Add(projectile);
+            return projectile;
+        }
 
         public void UpdateProjectiles()
         {

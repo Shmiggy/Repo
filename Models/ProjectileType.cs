@@ -4,6 +4,7 @@
 
     public enum ProjectileType
     {
+        None,
         [StringValue("SSSG.Models.BeamProjectile")]
         Beam,
         [StringValue("SSSG.Models.RocketProjectile")]

@@ -28,7 +28,7 @@
 
         static BeamProjectile()
         {
-            ProjectileFactory.addFactory(ProjectileType.Beam, new Factory());
+            ProjectileFactory.AddFactory(ProjectileType.Beam, new Factory());
         }
     }
 }

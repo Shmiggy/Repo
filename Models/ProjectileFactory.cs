@@ -11,7 +11,7 @@
 
         private static Dictionary<ProjectileType, ProjectileFactory> factories = new Dictionary<ProjectileType, ProjectileFactory>();
 
-        public static void addFactory(ProjectileType type, ProjectileFactory factory)
+        public static void AddFactory(ProjectileType type, ProjectileFactory factory)
         {
             if ( !factories.ContainsKey(type) )
             {

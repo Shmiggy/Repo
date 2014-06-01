@@ -7,23 +7,22 @@
     public class GameModel : ISubject
     {
         public GameState State { get; set; }
+        public List<Enemy> OnScreenEnemies { get; private set; }  // for now, holds a list with space mines (enemies)
 
-        public Player CurrentPlayer;        // holds the player ship
-        public List<Enemy> OnScreenEnemies; // for now, holds a list with space mines (enemies)
-        int currentGameLevel;               // game difficulty, I think... don't quote me on this one
-        static int EnemyCoolDown = 0;       // wtf does this stand for?
-
+        private int currentGameLevel;               // game difficulty, I think... don't quote me on this one
+        private static int enemyCoolDown = 0;
         private static int beamCoolDown = 0;
         private static int rocketCoolDown = 0;
+        private Player currentPlayer;               // holds the player ship
 
         private List<IObserver> observers;
 
         public GameModel()
         {
-            CurrentPlayer = new Player();
+            currentPlayer = new Player();
             OnScreenEnemies = new List<Enemy>();
             currentGameLevel = 5;
-            CurrentPlayer.Initialize();
+            currentPlayer.Initialize();
 
             observers = new List<IObserver>();
         }
@@ -32,7 +31,7 @@
         {
             get
             {
-                return !CurrentPlayer.IsAlive;
+                return !currentPlayer.IsAlive;
             }
         }
 
@@ -63,7 +62,7 @@
         {
             foreach ( var enemy in OnScreenEnemies )
             {
-                foreach ( var proj in CurrentPlayer.Projectiles )
+                foreach ( var proj in currentPlayer.Projectiles )
                 {
                     if ( proj.IsAlive && proj.CollidesWith(enemy) )
                     {
@@ -75,9 +74,9 @@
 
             foreach ( var enemy in OnScreenEnemies )
             {
-                if ( enemy.CollidesWith(CurrentPlayer) )
+                if ( enemy.CollidesWith(currentPlayer) )
                 {
-                    CurrentPlayer.TakeDamage(enemy.Damage);
+                    currentPlayer.TakeDamage(enemy.Damage);
                     enemy.TakeDamage(enemy.Health);
                 }
             }
@@ -85,20 +84,20 @@
 
         public void UpdateProjectiles()
         {
-            CurrentPlayer.UpdateProjectiles();
+            currentPlayer.UpdateProjectiles();
         }
 
         public void UpdateEnemies(GameTime gameTime)
         {
-            EnemyCoolDown += currentGameLevel;
-            if ( EnemyCoolDown >= 500 ) // wtf is 500? rate at which enemies are spawned?
+            enemyCoolDown += currentGameLevel;
+            if ( enemyCoolDown >= 500 ) // wtf is 500? rate at which enemies are spawned?
             {
                 Enemy newEnemy = new Enemy();
                 newEnemy.Initialize();
                 OnScreenEnemies.Add(newEnemy);
                 Notify(ModelChanges.EnemySpawned);
             }
-            EnemyCoolDown %= 500;
+            enemyCoolDown %= 500;
             foreach ( Enemy item in OnScreenEnemies )
             {
                 item.UpdatePosition(gameTime);
@@ -110,14 +109,14 @@
         {
             bool returnValue = false;
 
-            if (type == ProjectileType.Beam && beamCoolDown == 0)
+            if ( type == ProjectileType.Beam && beamCoolDown == 0 )
             {
                 fireBeam();
                 beamCoolDown++;
                 Notify(ModelChanges.BeamProjectileSpawned);
                 returnValue = true;
-            } 
-            else if (type == ProjectileType.Rocket && rocketCoolDown == 0)
+            }
+            else if ( type == ProjectileType.Rocket && rocketCoolDown == 0 )
             {
                 fireRocket();
                 rocketCoolDown++;
@@ -130,12 +129,12 @@
 
         private void fireBeam()
         {
-            CurrentPlayer.Shoot(ProjectileType.Beam);
+            currentPlayer.Shoot(ProjectileType.Beam);
         }
 
         private void fireRocket()
         {
-            CurrentPlayer.Shoot(ProjectileType.Rocket);
+            currentPlayer.Shoot(ProjectileType.Rocket);
         }
 
         public void IncrementLevel()
@@ -145,32 +144,48 @@
 
         public void MovePlayerUp(GameTime gameTime)
         {
-            CurrentPlayer.MovePlayerUp(gameTime);
+            currentPlayer.MovePlayerUp(gameTime);
         }
 
         public void MovePlayerDown(GameTime gameTime)
         {
-            CurrentPlayer.MovePlayerDown(gameTime);
+            currentPlayer.MovePlayerDown(gameTime);
         }
 
         public void MovePlayerLeft(GameTime gameTime)
         {
-            CurrentPlayer.MovePlayerLeft(gameTime);
+            currentPlayer.MovePlayerLeft(gameTime);
         }
 
         public void MovePlayerRight(GameTime gameTime)
         {
-            CurrentPlayer.MovePlayerRight(gameTime);
+            currentPlayer.MovePlayerRight(gameTime);
         }
 
         public void DamagePlayer(int damageValue)
         {
-            CurrentPlayer.TakeDamage(damageValue);
+            currentPlayer.TakeDamage(damageValue);
         }
 
         public void ResetPlayerTilt()
         {
-            CurrentPlayer.ResetPlayerTilt();
+            currentPlayer.ResetPlayerTilt();
+        }
+
+        public List<Projectile> OnScreenProjectiles
+        {
+            get
+            {
+                return currentPlayer.Projectiles;
+            }
+        }
+
+        public Player CurrentPlayer
+        {
+            get
+            {
+                return currentPlayer;
+            }
         }
 
         #region ISubject Members

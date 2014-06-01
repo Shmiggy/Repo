@@ -8,18 +8,18 @@ namespace SSSGTests
     public class PlayerTests
     {
         private Player player;
-        
+
         [TestInitialize()]
-        public void setup()
+        public void Setup()
         {
             player = new Player();
         }
 
         [TestCleanup()]
-        public void tearDown()
+        public void TearDown()
         {
         }
-        
+
         [TestMethod]
         public void DamageIsSubtracted()
         {
@@ -38,22 +38,35 @@ namespace SSSGTests
             player.TakeDamage(damageAmount);
             Assert.IsFalse(player.IsAlive);
         }
-		
-		// added by Alex. Please review them
-		[TestMethod]
+
+        [TestMethod]
+        public void PlayerCanShoot()
+        {
+            int beforeCount = player.Projectiles.Count;
+            player.Shoot(ProjectileType.Beam);
+            int afterCount = player.Projectiles.Count;
+            Assert.AreEqual(afterCount, beforeCount + 1);
+        }
+
+        [TestMethod]
         public void PlayerCanShootRockets()
         {
-            int noProjectiles = player.Projectiles.Count;
-            player.Shoot(ProjectileType.Rocket);
-            Assert.IsTrue(player.Projectiles.Count == noProjectiles + 1);
+            Projectile firedProjectile = player.Shoot(ProjectileType.Rocket);
+            Assert.AreEqual(firedProjectile.GetType(), typeof(RocketProjectile));
         }
-		
-		[TestMethod]
+
+        [TestMethod]
         public void PlayerCanShootBeams()
         {
-            int noProjectiles = player.Projectiles.Count;
-            player.Shoot(ProjectileType.Beam);
-            Assert.IsTrue(player.Projectiles.Count == noProjectiles + 1);
+            Projectile firedProjectile = player.Shoot(ProjectileType.Beam);
+            Assert.AreEqual(firedProjectile.GetType(), typeof(BeamProjectile));
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void NoInvalidProjectilesAreAllowed()
+        {
+            player.Shoot(ProjectileType.None);
         }
 
     }

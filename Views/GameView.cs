@@ -46,7 +46,7 @@
         }
 
         // TODO: take a deep breath and refactor this
-		      // *Quietly walking away :-" *  -- Alex
+        // *Quietly walking away :-" *  -- Alex
         public void Update(GameTime gameTime, GameModel model)
         {
             animPlayer.UpdateByInput(gameTime, model.CurrentPlayer.Tilt, model.CurrentPlayer.Position);
@@ -69,23 +69,23 @@
                 MineAnimationList.RemoveRange(model.OnScreenEnemies.Count, MineAnimationList.Count - model.OnScreenEnemies.Count);
                 ExplosionAnimationList.RemoveRange(model.OnScreenEnemies.Count, MineAnimationList.Count - model.OnScreenEnemies.Count);
             }
-            for ( int i = 0; i < model.CurrentPlayer.Projectiles.Count; i++ )
+            for ( int i = 0; i < model.OnScreenProjectiles.Count; i++ )
             {
-                if ( model.CurrentPlayer.Projectiles[i] is BeamProjectile )
+                if ( model.OnScreenProjectiles[i] is BeamProjectile )
                 {
-                    ProjectileAnimationList[indexProj].Update(gameTime, model.CurrentPlayer.Projectiles[i].Position);
+                    ProjectileAnimationList[indexProj].Update(gameTime, model.OnScreenProjectiles[i].Position);
                     indexProj++;
                 }
                 else
                 {
-                    RocketAnimationList[indexRocket].Update(gameTime, model.CurrentPlayer.Projectiles[i].Position);
+                    RocketAnimationList[indexRocket].Update(gameTime, model.OnScreenProjectiles[i].Position);
                     indexRocket++;
                 }
 
             }
-            if ( model.CurrentPlayer.Projectiles.Count < ProjectileAnimationList.Count )
+            if ( model.OnScreenProjectiles.Count < ProjectileAnimationList.Count )
             {
-                ProjectileAnimationList.RemoveRange(model.CurrentPlayer.Projectiles.Count, ProjectileAnimationList.Count - model.CurrentPlayer.Projectiles.Count);
+                ProjectileAnimationList.RemoveRange(model.OnScreenProjectiles.Count, ProjectileAnimationList.Count - model.OnScreenProjectiles.Count);
             }
         }
 
@@ -105,9 +105,9 @@
                     ExplosionAnimationList[i].Draw(spriteBatch);
                 }
             }
-            for ( int i = 0; i < model.CurrentPlayer.Projectiles.Count; i++ )
+            for ( int i = 0; i < model.OnScreenProjectiles.Count; i++ )
             {
-                if ( model.CurrentPlayer.Projectiles[i] is BeamProjectile )
+                if ( model.OnScreenProjectiles[i] is BeamProjectile )
                 {
                     ProjectileAnimationList[indexProj].Draw(spriteBatch);
                     indexProj++;
