@@ -4,10 +4,10 @@
     using SSSG.Utils.Patterns;
     using System.Collections.Generic;
 
-    public class GameModel : ISubject
+    public class GameModel : ISubject, IGameModel
     {
         public GameState State { get; set; }
-        public List<Enemy> OnScreenEnemies { get; private set; }  // for now, holds a list with space mines (enemies)
+        public List<Enemy> screenEnemies;         // for now, holds a list with space mines (enemies)
 
         private int currentGameLevel;               // game difficulty, I think... don't quote me on this one
         private static int enemyCoolDown = 0;
@@ -20,7 +20,7 @@
         public GameModel()
         {
             currentPlayer = new Player();
-            OnScreenEnemies = new List<Enemy>();
+            screenEnemies = new List<Enemy>();
             currentGameLevel = 5;
             currentPlayer.Initialize();
 
@@ -60,7 +60,7 @@
         /// </summary>
         public void UpdateColisions()
         {
-            foreach ( var enemy in OnScreenEnemies )
+            foreach ( var enemy in screenEnemies )
             {
                 foreach ( var proj in currentPlayer.Projectiles )
                 {
@@ -72,7 +72,7 @@
                 }
             }
 
-            foreach ( var enemy in OnScreenEnemies )
+            foreach ( var enemy in screenEnemies )
             {
                 if ( enemy.CollidesWith(currentPlayer) )
                 {
@@ -94,15 +94,15 @@
             {
                 Enemy newEnemy = new Enemy();
                 newEnemy.Initialize();
-                OnScreenEnemies.Add(newEnemy);
+                screenEnemies.Add(newEnemy);
                 Notify(ModelChanges.EnemySpawned);
             }
             enemyCoolDown %= 500;
-            foreach ( Enemy item in OnScreenEnemies )
+            foreach ( Enemy item in screenEnemies )
             {
                 item.UpdatePosition(gameTime);
             }
-            OnScreenEnemies.RemoveAll((item) => (item.Position.X < -100 || !item.IsAlive));
+            screenEnemies.RemoveAll((item) => (item.Position.X < -100 || !item.IsAlive));
         }
 
         public bool PlayerShoot(ProjectileType type)
@@ -172,22 +172,6 @@
             currentPlayer.ResetPlayerTilt();
         }
 
-        public List<Projectile> OnScreenProjectiles
-        {
-            get
-            {
-                return currentPlayer.Projectiles;
-            }
-        }
-
-        public Player CurrentPlayer
-        {
-            get
-            {
-                return currentPlayer;
-            }
-        }
-
         #region ISubject Members
 
         public void AttachObserver(IObserver observer)
@@ -205,6 +189,42 @@
             foreach ( IObserver observer in observers )
             {
                 observer.Update(this, payload);
+            }
+        }
+
+        #endregion
+
+        #region IGameModel Members
+
+        public IEnumerable<Projectile> OnScreenProjectiles
+        {
+            get
+            {
+                return currentPlayer.Projectiles.ToArray();
+            }
+        }
+
+        public IEnumerable<Enemy> OnScreenEnemies
+        {
+            get
+            {
+                return screenEnemies.ToArray();
+            }
+        }
+
+        public Vector2 ShipPosition
+        {
+            get
+            {
+                return currentPlayer.Position;
+            }
+        }
+
+        public int ShipTilt
+        {
+            get
+            {
+                return currentPlayer.Tilt;
             }
         }
 

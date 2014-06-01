@@ -7,7 +7,7 @@
     public interface IView
     {
         void Initialize(SpriteBatch spriteBatch);
-        void Update(GameTime gameTime, GameModel model);
-        void Draw(GameModel model);
+        void Update(GameTime gameTime, IGameModel model);
+        void Draw(IGameModel model);
     }
 }

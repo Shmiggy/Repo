@@ -47,13 +47,13 @@
             btnQuit.Location(600, 470);
         }
 
-        public void Update(GameTime gameTime, GameModel model)
+        public void Update(GameTime gameTime, IGameModel model)
         {
             btnPlay.Update();
             btnQuit.Update();
         }
 
-        public void Draw(GameModel model)
+        public void Draw(IGameModel model)
         {
             spriteBatch.Draw(AssetsManager.Instance.getTexture(GameAssets.ASSET_TEXTURE_BG), Vector2.Zero, Color.White);
             btnPlay.Draw();
