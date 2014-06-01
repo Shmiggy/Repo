@@ -107,24 +107,22 @@
 
         public bool PlayerShoot(ProjectileType type)
         {
-            bool returnValue = false;
-
             if ( type == ProjectileType.Beam && beamCoolDown == 0 )
             {
                 fireBeam();
                 beamCoolDown++;
                 Notify(ModelChanges.BeamProjectileSpawned);
-                returnValue = true;
+                return true;
             }
             else if ( type == ProjectileType.Rocket && rocketCoolDown == 0 )
             {
                 fireRocket();
                 rocketCoolDown++;
                 Notify(ModelChanges.RocketProjectileSpawned);
-                returnValue = true;
+                return true;
             }
 
-            return returnValue;
+            return false;
         }
 
         private void fireBeam()
