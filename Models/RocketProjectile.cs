@@ -4,7 +4,7 @@
 
     public class RocketProjectile : Projectile
     {
-        private static int spawnDirection = 1; // why is this static ??
+        private static int spawnDirection = 1;
         private int selfDirection;
 
         private RocketProjectile(Vector2 spawnPosition)
@@ -13,7 +13,7 @@
             Speed = -5;
             Damage = 100;
             selfDirection = spawnDirection;
-            spawnDirection *= -1;
+            spawnDirection = -spawnDirection;
         }
 
         public override void Update()
