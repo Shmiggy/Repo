@@ -46,7 +46,7 @@
         }
 
         // TODO: take a deep breath and refactor this
-		// *Quietly walking away :-" *  -- Alex
+		      // *Quietly walking away :-" *  -- Alex
         public void Update(GameTime gameTime, GameModel model)
         {
             animPlayer.UpdateByInput(gameTime, model.CurrentPlayer.Tilt, model.CurrentPlayer.Position);
@@ -71,14 +71,14 @@
             }
             for ( int i = 0; i < model.CurrentPlayer.Projectiles.Count; i++ )
             {
-                if ( model.CurrentPlayer.Projectiles[i].projType == 1 )
+                if ( model.CurrentPlayer.Projectiles[i] is BeamProjectile )
                 {
-                    ProjectileAnimationList[indexProj].Update(gameTime, model.CurrentPlayer.Projectiles[i].projPoz);
+                    ProjectileAnimationList[indexProj].Update(gameTime, model.CurrentPlayer.Projectiles[i].Position);
                     indexProj++;
                 }
                 else
                 {
-                    RocketAnimationList[indexRocket].Update(gameTime, model.CurrentPlayer.Projectiles[i].projPoz);
+                    RocketAnimationList[indexRocket].Update(gameTime, model.CurrentPlayer.Projectiles[i].Position);
                     indexRocket++;
                 }
 
@@ -107,7 +107,7 @@
             }
             for ( int i = 0; i < model.CurrentPlayer.Projectiles.Count; i++ )
             {
-                if ( model.CurrentPlayer.Projectiles[i].projType == 1 )
+                if ( model.CurrentPlayer.Projectiles[i] is BeamProjectile )
                 {
                     ProjectileAnimationList[indexProj].Draw(spriteBatch);
                     indexProj++;
@@ -147,7 +147,6 @@
             RocketAnimationList.Add(newRocketAnim);
         }
 
-
         #region IObserver Members
 
         public void Update(ISubject subject, object payload)
@@ -158,10 +157,10 @@
                 case ModelChanges.EnemySpawned:
                     AddEnemyAnimation();
                 break;
-                case ModelChanges.RocketSpawned:
+                case ModelChanges.RocketProjectileSpawned:
                     AddRocketAnimation();
                 break;
-                case ModelChanges.ProjectileSpawned:
+                case ModelChanges.BeamProjectileSpawned:
                     AddProjectileAnimation();
                 break;
             }

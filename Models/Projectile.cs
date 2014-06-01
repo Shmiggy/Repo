@@ -5,14 +5,12 @@
 
     public abstract class Projectile : BaseEntity
     {
-		// TODO: de transformat in proprietati
-        public Vector2 projPoz;
-        public int projDamage;
+        private int damage;
 
         public Projectile(Vector2 spawnPosition)
         {
             Health = 1;
-            projPoz = spawnPosition;
+            Position = spawnPosition;
         }
 
         public abstract void Update();
@@ -21,8 +19,14 @@
         {
             get
             {
-                return new Rectangle((int)projPoz.X-16,(int)projPoz.Y-4,32,8);
+                return new Rectangle((int) Position.X - 16, (int) Position.Y - 4, 32, 8);
             }
+        }
+
+        public int Damage
+        {
+            get { return damage; }
+            protected set { damage = value; }
         }
 
     }

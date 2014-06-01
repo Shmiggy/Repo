@@ -4,110 +4,90 @@
     using System;
     using SSSG.Models;
     using Microsoft.Xna.Framework;
+    using SSSG.Input;
 
-    public static class Controller
+    public class Controller
     {
-        private static GameModel gameModel = new GameModel();
-        static int projCoolDown = 0;
-        static int rocketCoolDown = 0;
+        private IKeyboardInput keyboard;
+        private GameModel model;
 
-        public static GameModel GameModel
+        public Controller(GameModel model)
         {
-            get { return gameModel; }
-            set { gameModel = value; }
+            this.model = model;
         }
 
-        public static void Update(GameTime gameTime)
+        public IKeyboardInput Keyboard
         {
-            if ( GameModel.State == GameState.Game )
+            set { keyboard = value; }
+        }
+
+        public void Update(GameTime gameTime)
+        {
+            if ( model.IsGameOver )
             {
-                if ( !GameModel.CurrentPlayer.IsAlive )
+                DeepSpaceShooterGame.Instance.Exit();
+            }
+
+            model.Update(gameTime);
+
+            PollInput(gameTime);
+        }
+
+        public void PollInput(GameTime gameTime)
+        {
+
+            if ( model.State == GameState.Game )
+            {
+                if ( keyboard.IsKeyDown(Keys.Escape) )
                 {
                     DeepSpaceShooterGame.Instance.Exit();
                 }
 
-                //Controller.UpdatePlayer();
-                Controller.UpdateEnemy(gameTime);
-                Controller.GameModel.CurrentPlayer.UpdateProjectiles();
-                Controller.GameModel.UpdateColision();
-            }
-            Controller.KeyInput(gameTime);
-        }
+                if ( keyboard.IsKeyDown(Keys.Z) )
+                {
+                    model.PlayerShoot(ProjectileType.Rocket);
+                }
 
-        //public static void UpdatePlayer()
-        //{
-        //gameModel.CurrentPlayer.PlayerStillAlive();
-        // }
+                if ( keyboard.IsKeyDown(Keys.Space) )
+                {
+                    model.PlayerShoot(ProjectileType.Beam);
+                }
 
+                if ( keyboard.IsKeyDown(Keys.Up) )
+                {
+                    model.MovePlayerUp(gameTime);
+                }
 
-        public static void UpdateEnemy(GameTime gameTime)
-        {
-            gameModel.UpdateEnemies(gameTime);
-        }
+                if ( keyboard.IsKeyDown(Keys.Down) )
+                {
+                    model.MovePlayerDown(gameTime);
+                }
 
-        public static void KeyInput(GameTime gameTime)
-        {
-            if ( projCoolDown != 0 )
-            {
-                projCoolDown = (projCoolDown + 1) % 10;
-            }
-            if ( rocketCoolDown != 0 )
-            {
-                rocketCoolDown = (rocketCoolDown + 1) % 100;
-            }
-            if ( GameModel.State == GameState.Game )
-            {
-                if ( Keyboard.GetState().IsKeyDown(Keys.Escape) )
+                if ( keyboard.IsKeyDown(Keys.Right) )
                 {
-                    DeepSpaceShooterGame.Instance.Exit();
+                    model.MovePlayerRight(gameTime);
                 }
-                if ( Keyboard.GetState().IsKeyDown(Keys.Z) )
+
+                if ( keyboard.IsKeyDown(Keys.Left) )
                 {
-                    if ( rocketCoolDown == 0 )
-                    {
-                        GameModel.PlayerShoot(2);
-                        rocketCoolDown++;
-                    }
+                    model.MovePlayerLeft(gameTime);
                 }
-                if ( Keyboard.GetState().IsKeyDown(Keys.Space) )
+
+                if ( keyboard.IsKeyUp(Keys.Up) && keyboard.IsKeyUp(Keys.Down) )
                 {
-                    if ( projCoolDown == 0 )
-                    {
-                        GameModel.PlayerShoot(1);
-                        projCoolDown++;
-                    }
-                }
-                if ( Keyboard.GetState().IsKeyDown(Keys.Up) )
-                {
-                    GameModel.PlayerMoveUp(gameTime);
-                }
-                if ( Keyboard.GetState().IsKeyDown(Keys.Down) )
-                {
-                    GameModel.PlayerMoveDown(gameTime);
-                }
-                if ( Keyboard.GetState().IsKeyDown(Keys.Right) )
-                {
-                    GameModel.PlayerMoveRight(gameTime);
-                }
-                if ( Keyboard.GetState().IsKeyDown(Keys.Left) )
-                {
-                    GameModel.PlayerMoveLeft(gameTime);
-                }
-                if ( Keyboard.GetState().IsKeyUp(Keys.Up) && Keyboard.GetState().IsKeyUp(Keys.Down) )
-                {
-                    GameModel.CurrentPlayer.ResetPlayerTilt();
+                    model.ResetPlayerTilt();
                 }
             }
         }
 
-        public static void btnQuit_OnClick(object sender, EventArgs e)
+        public void OnBtnQuitOnClick(object sender, EventArgs e)
         {
             DeepSpaceShooterGame.Instance.Exit();
         }
 
-        public static void btnPlay_OnClick(object sender, EventArgs e)
+        public void OnBtnPlayOnClick(object sender, EventArgs e)
         {
-            GameModel.State = GameState.Game;
+            model.State = GameState.Game;
         }
     }
 }

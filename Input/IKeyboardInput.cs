@@ -1,10 +1,10 @@
 ﻿namespace SSSG.Input
 {
-    using SSSG.Utils.Patterns;
+    using Microsoft.Xna.Framework.Input;
 
-    public interface IKeyboardInput : IObserver
+    public interface IKeyboardInput
     {
-        event KeyboardHandler KeyPressed;
-        event KeyboardHandler KeyReleased;
+        bool IsKeyDown(Keys key);
+        bool IsKeyUp(Keys key);
     }
 }

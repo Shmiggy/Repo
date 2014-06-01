@@ -8,10 +8,13 @@
     {
         public GameState State { get; set; }
 
-        public Player CurrentPlayer; // holds the player ship
+        public Player CurrentPlayer;        // holds the player ship
         public List<Enemy> OnScreenEnemies; // for now, holds a list with space mines (enemies)
-        int currentGameLevel; // game difficulty, I think... don't quote me on this one
-        static int EnemyCoolDown = 0; // wtf does this stand for?
+        int currentGameLevel;               // game difficulty, I think... don't quote me on this one
+        static int EnemyCoolDown = 0;       // wtf does this stand for?
+
+        private static int beamCoolDown = 0;
+        private static int rocketCoolDown = 0;
 
         private List<IObserver> observers;
 
@@ -25,10 +28,38 @@
             observers = new List<IObserver>();
         }
 
+        public bool IsGameOver
+        {
+            get
+            {
+                return !CurrentPlayer.IsAlive;
+            }
+        }
+
+        public void Update(GameTime gameTime)
+        {
+            if ( State == GameState.Game )
+            {
+                UpdateEnemies(gameTime);
+                UpdateProjectiles();
+                UpdateColisions();
+            }
+
+            if ( beamCoolDown != 0 )
+            {
+                beamCoolDown = (beamCoolDown + 1) % 10;
+            }
+
+            if ( rocketCoolDown != 0 )
+            {
+                rocketCoolDown = (rocketCoolDown + 1) % 100;
+            }
+        }
+
         /// <summary>
         /// Handles collisions such as: projectiles vs enemies, playerShip vs enemies
         /// </summary>
-        public void UpdateColision()
+        public void UpdateColisions()
         {
             foreach ( var enemy in OnScreenEnemies )
             {
@@ -36,7 +67,7 @@
                 {
                     if ( proj.IsAlive && proj.CollidesWith(enemy) )
                     {
-                        enemy.TakeDamage(proj.projDamage);
+                        enemy.TakeDamage(proj.Damage);
                         proj.TakeDamage(proj.Health);
                     }
                 }
@@ -50,6 +81,11 @@
                     enemy.TakeDamage(enemy.Health);
                 }
             }
+        }
+
+        public void UpdateProjectiles()
+        {
+            CurrentPlayer.UpdateProjectiles();
         }
 
         public void UpdateEnemies(GameTime gameTime)
@@ -70,17 +106,36 @@
             OnScreenEnemies.RemoveAll((item) => (item.Position.X < -100 || !item.IsAlive));
         }
 
-        public void PlayerShoot(int type)
+        public bool PlayerShoot(ProjectileType type)
         {
-            CurrentPlayer.PlayerShoot(type);
-            if ( type == 1 )
+            bool returnValue = false;
+
+            if (type == ProjectileType.Beam && beamCoolDown == 0)
             {
-                Notify(ModelChanges.ProjectileSpawned);
-            }
-            else if ( type == 2 )
+                fireBeam();
+                beamCoolDown++;
+                Notify(ModelChanges.BeamProjectileSpawned);
+                returnValue = true;
+            } 
+            else if (type == ProjectileType.Rocket && rocketCoolDown == 0)
             {
-                Notify(ModelChanges.RocketSpawned);
+                fireRocket();
+                rocketCoolDown++;
+                Notify(ModelChanges.RocketProjectileSpawned);
+                returnValue = true;
             }
+
+            return returnValue;
+        }
+
+        private void fireBeam()
+        {
+            CurrentPlayer.Shoot(ProjectileType.Beam);
+        }
+
+        private void fireRocket()
+        {
+            CurrentPlayer.Shoot(ProjectileType.Rocket);
         }
 
         public void IncrementLevel()
@@ -88,29 +143,34 @@
             currentGameLevel++;
         }
 
-        public void PlayerMoveUp(GameTime gameTime)
+        public void MovePlayerUp(GameTime gameTime)
         {
             CurrentPlayer.MovePlayerUp(gameTime);
         }
 
-        public void PlayerMoveDown(GameTime gameTime)
+        public void MovePlayerDown(GameTime gameTime)
         {
             CurrentPlayer.MovePlayerDown(gameTime);
         }
 
-        public void PlayerMoveLeft(GameTime gameTime)
+        public void MovePlayerLeft(GameTime gameTime)
         {
             CurrentPlayer.MovePlayerLeft(gameTime);
         }
 
-        public void PlayerMoveRight(GameTime gameTime)
+        public void MovePlayerRight(GameTime gameTime)
         {
             CurrentPlayer.MovePlayerRight(gameTime);
         }
 
-        public void PlayerDamage(int damageValue)
+        public void DamagePlayer(int damageValue)
         {
             CurrentPlayer.TakeDamage(damageValue);
+        }
+
+        public void ResetPlayerTilt()
+        {
+            CurrentPlayer.ResetPlayerTilt();
         }
 
         #region ISubject Members

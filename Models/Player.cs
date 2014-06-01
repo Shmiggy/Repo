@@ -9,7 +9,7 @@
         private int tilt;                       // how much will the ship tilt
         private Rectangle movementRect;         // area the player can move into
         private List<Projectile> projectiles;   // all projectiles produced by the player
-        private readonly int PROJECTILE_EDGE;   // limit at which the player's projectiles will be removed
+        private readonly int projectileEdge;    // limit at which the player's projectiles will be removed
 
         /// <summary>
         /// Initializes an instance of Player.
@@ -17,7 +17,7 @@
         public Player()
         {
             Initialize();
-            PROJECTILE_EDGE = 1000;
+            projectileEdge = 1000;
         }
 
         /// <summary>
@@ -35,21 +35,14 @@
             projectiles = new List<Projectile>();
         }
 
-        // TODO: implement Factory Method
-		// Done(Alex)
-        public void PlayerShoot(int type)
+
+        public void Shoot(ProjectileType type)
         {
-			Projectile newProj;
-			if ( type == 1 )
-			{
-				newProj = new BeamProjectile(Position);
-			}
-			else
-			{
-				newProj = new RocketProjectile(Position);
-			}
-            //Projectile newProj = new Projectile(type, Position);
-            Projectiles.Add(newProj);
+            Projectile projectile = ProjectileFactory.CreateProjectile(type, Position);
+            if ( projectile != null )
+            {
+                Projectiles.Add(projectile);
+            }
         }
 
 
@@ -59,7 +52,7 @@
             {
                 item.Update();
             }
-            Projectiles.RemoveAll((item) => (item.projPoz.X > PROJECTILE_EDGE || !item.IsAlive));
+            Projectiles.RemoveAll((item) => (item.Position.X > projectileEdge || !item.IsAlive));
         }
 
         public void ResetPlayerTilt()
@@ -89,7 +82,7 @@
             {
                 float x = Position.X;
                 float y = Position.Y - Speed * (int) gameTime.ElapsedGameTime.TotalMilliseconds / 100;
-                Position = new Vector2 { X = x, Y = y }; 
+                Position = new Vector2 { X = x, Y = y };
                 tilt = 1;
             }
         }

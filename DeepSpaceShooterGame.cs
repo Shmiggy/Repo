@@ -15,15 +15,14 @@ namespace SSSG
     {
         private GraphicsDeviceManager graphics;
         private SpriteBatch spriteBatch;
-        public GameTime CurrentGameTime { get; set; }
 
         private Dictionary<GameState, IView> views;
+        private GameModel gameModel;
+        private Controller controller;
 
         private static DeepSpaceShooterGame instance;
         private static Object syncRoot = new Object();
 
-        private IMouseInput mouseInput;
-        private IKeyboardInput keyboardInput;
         private List<IObserver> observers;
 
         private DeepSpaceShooterGame()
@@ -41,7 +40,7 @@ namespace SSSG
         {
             get
             {
-                return Controller.GameModel.State;
+                return this.gameModel.State;
             }
         }
 
@@ -50,16 +49,20 @@ namespace SSSG
             base.Initialize();
             this.IsMouseVisible = true;
 
-            Controller.GameModel = new GameModel { State = GameState.Menu };
+            this.gameModel = new GameModel { State = GameState.Menu };
+            this.controller = new Controller(this.gameModel);
+            this.controller.Keyboard = new KeyboardInput();
+
             this.views = new Dictionary<GameState, IView>();
 
             MenuView menuView = new MenuView(spriteBatch);
-            menuView.addEventListenerOnPlayButton(Controller.btnPlay_OnClick);
-            menuView.addEventListenerOnQuitButton(Controller.btnQuit_OnClick);
-            this.views.Add(GameState.Menu, menuView);
+            menuView.addEventListenerOnPlayButton(this.controller.OnBtnPlayOnClick);
+            menuView.addEventListenerOnQuitButton(this.controller.OnBtnQuitOnClick);
 
             GameView gameView = new GameView(spriteBatch);
-            Controller.GameModel.AttachObserver(gameView);
+            this.gameModel.AttachObserver(gameView);
+
+            this.views.Add(GameState.Menu, menuView);
             this.views.Add(GameState.Game, gameView);
 
             MediaPlayer.IsRepeating = true;
@@ -79,13 +82,11 @@ namespace SSSG
 
         protected override void Update(GameTime gameTime)
         {
-            Notify(gameTime); // notifies all registered observers, including keyboard & mouse listeners
+            Notify(gameTime);
 
-            CurrentGameTime = gameTime;
+            this.controller.Update(gameTime);
 
-            Controller.Update(gameTime);
-
-            this.views[State].Update(gameTime, Controller.GameModel);
+            this.views[State].Update(gameTime, this.gameModel);
 
             base.Update(gameTime);
         }
@@ -95,7 +96,7 @@ namespace SSSG
             GraphicsDevice.Clear(Color.CornflowerBlue);
             spriteBatch.Begin();
 
-            this.views[State].Draw(Controller.GameModel);
+            this.views[State].Draw(this.gameModel);
 
             spriteBatch.End();
             base.Draw(gameTime);
@@ -120,17 +121,6 @@ namespace SSSG
             }
         }
 
-        public IMouseInput MouseInput
-        {
-            get { return mouseInput; }
-            set { mouseInput = value; AttachObserver(value); }
-        }
-
-        public IKeyboardInput KeyboardInput
-        {
-            get { return keyboardInput; }
-            set { keyboardInput = value; AttachObserver(value); }
-        }
 
         #region ISubject Members
 

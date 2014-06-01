@@ -4,7 +4,7 @@
     {
         None,
         EnemySpawned,
-        RocketSpawned,
-        ProjectileSpawned
+        RocketProjectileSpawned,
+        BeamProjectileSpawned
     }
 }
