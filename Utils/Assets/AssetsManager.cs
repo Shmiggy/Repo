@@ -28,7 +28,7 @@
                 "Textures/Stars", 
                 "Textures/Mine", 
                 "Textures/Projectile", 
-                "Textures/EXplosion", 
+                "Textures/Explosion", 
                 "Textures/MenuScreen", 
                 "Textures/PlayButton", 
                 "Textures/PlayButtonHover", 
