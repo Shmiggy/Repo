@@ -38,6 +38,23 @@ namespace SSSGTests
             player.TakeDamage(damageAmount);
             Assert.IsFalse(player.IsAlive);
         }
+		
+		// added by Alex. Please review them
+		[TestMethod]
+        public void PlayerCanShootRockets()
+        {
+            int noProjectiles = player.Projectiles.Count;
+            player.Shoot(ProjectileType.Rocket);
+            Assert.IsTrue(player.Projectiles.Count == noProjectiles + 1);
+        }
+		
+		[TestMethod]
+        public void PlayerCanShootBeams()
+        {
+            int noProjectiles = player.Projectiles.Count;
+            player.Shoot(ProjectileType.Beam);
+            Assert.IsTrue(player.Projectiles.Count == noProjectiles + 1);
+        }
 
     }
 }
