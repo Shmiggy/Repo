@@ -16,6 +16,7 @@
         private int frameHeight;
         private Vector2 position;
         public AnimationType Type { get; set; }
+        public bool ToBeRemoved { get; set; }
 
         public Animation(Texture2D texture, Vector2 position, int frameWidth, int frameHeight, int frameCount, int frameTime, int frameStart, AnimationType type)
         {
@@ -35,30 +36,30 @@
         public void UpdateByInput(GameTime gameTime, int input, Vector2 position)
         {
             this.position = position;
-            elapsedTime += (int)gameTime.ElapsedGameTime.TotalMilliseconds;
-            if (elapsedTime > frameTime)
+            elapsedTime += (int) gameTime.ElapsedGameTime.TotalMilliseconds;
+            if ( elapsedTime > frameTime )
             {
-                if (input == 0)
+                if ( input == 0 )
                 {
-                    if (currentFrame > 5)
+                    if ( currentFrame > 5 )
                     {
                         currentFrame--;
                     }
-                    else if (currentFrame < 5)
+                    else if ( currentFrame < 5 )
                     {
                         currentFrame++;
                     }
                 }
-                else if (input <= -1)
+                else if ( input <= -1 )
                 {
-                    if (currentFrame > 0)
+                    if ( currentFrame > 0 )
                     {
                         currentFrame--;
                     }
                 }
                 else
                 {
-                    if (currentFrame < 10)
+                    if ( currentFrame < 10 )
                     {
                         currentFrame++;
                     }
@@ -66,26 +67,26 @@
                 elapsedTime = 0;
             }
             sourceRect = new Rectangle(currentFrame * frameWidth, 0, frameWidth, frameHeight);
-            destinationRect = new Rectangle((int)position.X - frameWidth / 2, (int)position.Y - frameHeight / 2, frameWidth, frameHeight);
+            destinationRect = new Rectangle((int) position.X - frameWidth / 2, (int) position.Y - frameHeight / 2, frameWidth, frameHeight);
         }
 
         public void Update(GameTime gameTime, Vector2 position)
         {
             this.position = position;
-            elapsedTime += (int)gameTime.ElapsedGameTime.TotalMilliseconds;
+            elapsedTime += (int) gameTime.ElapsedGameTime.TotalMilliseconds;
 
-            if (elapsedTime > frameTime)
+            if ( elapsedTime > frameTime )
             {
                 currentFrame++;
 
-                if (currentFrame == frameCount)
+                if ( currentFrame == frameCount )
                 {
                     currentFrame = 0;
                 }
                 elapsedTime = 0;
             }
             sourceRect = new Rectangle(currentFrame * frameWidth, 0, frameWidth, frameHeight);
-            destinationRect = new Rectangle((int)position.X - frameWidth / 2, (int)position.Y - frameHeight / 2, frameWidth, frameHeight);
+            destinationRect = new Rectangle((int) position.X - frameWidth / 2, (int) position.Y - frameHeight / 2, frameWidth, frameHeight);
         }
 
         public void Draw(SpriteBatch spriteBatch)

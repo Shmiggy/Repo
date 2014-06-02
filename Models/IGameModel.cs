@@ -5,8 +5,8 @@
 
     public interface IGameModel
     {
-        IEnumerable<Projectile> OnScreenProjectiles { get; }
-        IEnumerable<Enemy> OnScreenEnemies { get; }
+        Projectile[] OnScreenProjectiles { get; }
+        Enemy[] OnScreenEnemies { get; }
         Vector2 ShipPosition { get; }
         int ShipTilt { get; }
     }

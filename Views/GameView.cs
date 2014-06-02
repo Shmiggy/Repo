@@ -49,26 +49,36 @@
             // the view receives a stripped-down, read-only version of the model
 
             Enemy[] enemies = model.OnScreenEnemies;
-            Projectile[] projectiles = model.OnScreenProjectiles;
+            List<Projectile> rocketProjectiles = (from p in model.OnScreenProjectiles where p is RocketProjectile select p).ToList();
+            List<Projectile> beamProjetiles = (from p in model.OnScreenProjectiles where p is BeamProjectile select p).ToList();
             int enemyCount = 0;
-            int projectileCount = 0;
+            int rocketCount = 0;
+            int beamCount = 0;
 
             backgroundAnimation.Update();
 
-            IEnumerator<Animation> animationsIterator = animation.GetEnumerator();
-            while (animationsIterator.MoveNext())
+            for(int i = 0; i < animations.Count; ++i)
             {
-                Animation animation = animationsIterator.Current;
+                Animation animation = animations[i];
                 switch (animation.Type)
                 {
                     case AnimationType.PLAYER:
                         animation.UpdateByInput(gameTime, model.ShipTilt, model.ShipPosition);
                         break;
                     case AnimationType.MINE:
+                        if(enemyCount >= enemies.Length)
+                        {
+                            animation.ToBeRemoved = true;
+                            animations[i+1].ToBeRemoved = true;
+                            break;
+                        }
+
                         if(!enemies[enemyCount].IsAlive)
                         {
-                            animationsIterator.MoveNext();
-                            animation = animationsIterator.Current;
+                            ++i;
+                            animation = animations[i];
+                            animation.ToBeRemoved = true;
+                            animations[i-1].ToBeRemoved = true;
                         }
                         animation.Update(gameTime, enemies[enemyCount].Position);
                         ++enemyCount;
@@ -77,10 +87,22 @@
                         //treated in MINE case
                         break;
                     case AnimationType.BEAM:
-                        goto case AnimationType.ROCKET;
+                        if ( beamCount >= beamProjetiles.Count )
+                        {
+                            animation.ToBeRemoved = true;
+                            break;
+                        }
+                        animation.Update(gameTime, beamProjetiles[beamCount].Position);
+                        ++beamCount;
+                        break;
                     case AnimationType.ROCKET:
-                        animation.Update(gameTime, projectiles[projectileCount].Position);
-                        ++projectileCount;
+                        if ( rocketCount >= rocketProjectiles.Count )
+                        {
+                            animation.ToBeRemoved = true;
+                            break;
+                        }
+                        animation.Update(gameTime, rocketProjectiles[rocketCount].Position);
+                        ++rocketCount;
                         break;
                     default:
                         //wrong animation type WTF ? 
@@ -88,107 +110,25 @@
                 }
             }
 
-            //IEnumerator<Enemy> enemyReader = enemies.GetEnumerator();
-
-            //int eCounter = 0;
-            //while ( enemyReader.MoveNext() )
-            //{
-            //    if ( enemyReader.Current.IsAlive )
-            //    {
-            //        mineAnimationList[eCounter].Update(gameTime, enemyReader.Current.Position);
-            //    }
-            //    else
-            //    {
-            //        explosionAnimationList[eCounter].Update(gameTime, enemyReader.Current.Position);
-            //    }
-            //    eCounter += 1;
-            //}
-
-            //if ( eCounter < mineAnimationList.Count )
-            //{
-            //    mineAnimationList.RemoveRange(eCounter, mineAnimationList.Count - eCounter);
-            //    explosionAnimationList.RemoveRange(eCounter, explosionAnimationList.Count - eCounter);
-            //}
-
-            //IEnumerator<Projectile> projectileReader = projectiles.GetEnumerator();
-
-            //int bCounter = 0;
-            //int rCounter = 0;
-            //while ( projectileReader.MoveNext() )
-            //{
-            //    if ( projectileReader.Current is BeamProjectile )
-            //    {
-            //        beamAnimationList[bCounter].Update(gameTime, projectileReader.Current.Position);
-            //        bCounter += 1;
-            //    }
-            //    else if ( projectileReader.Current is RocketProjectile )
-            //    {
-            //        rocketAnimationList[rCounter].Update(gameTime, projectileReader.Current.Position);
-            //        rCounter += 1;
-            //    }
-            //}
-
-            //if ( bCounter < beamAnimationList.Count )
-            //{
-            //    beamAnimationList.RemoveRange(bCounter, beamAnimationList.Count - bCounter);
-            //}
-
-            //if ( rCounter < rocketAnimationList.Count )
-            //{
-            //    rocketAnimationList.RemoveRange(rCounter, rocketAnimationList.Count - rCounter);
-            //}
-
+            animations.RemoveAll((item) => item.ToBeRemoved);
         }
 
         public void Draw(IGameModel model)
         {
             backgroundAnimation.Draw(spriteBatch);
+            Animation playerAnimation = null;
 
             foreach (Animation animation in animations)
             {
+                if(animation.Type == AnimationType.PLAYER)
+                {
+                    playerAnimation = animation;
+                    continue;
+                }
                 animation.Draw(spriteBatch);
             }
 
-            //IEnumerable<Enemy> enemies = model.OnScreenEnemies;
-            //IEnumerable<Projectile> projectiles = model.OnScreenProjectiles;
-
-            //backgroundAnimation.Draw(spriteBatch);
-
-            //IEnumerator<Enemy> enemyReader = enemies.GetEnumerator();
-
-            //int eCounter = 0;
-            //while ( enemyReader.MoveNext() )
-            //{
-            //    if ( enemyReader.Current.IsAlive )
-            //    {
-            //        mineAnimationList[eCounter].Draw(spriteBatch);
-            //    }
-            //    else
-            //    {
-            //        explosionAnimationList[eCounter].Draw(spriteBatch);
-            //    }
-            //    eCounter += 1;
-            //}
-
-            //IEnumerator<Projectile> projectileReader = projectiles.GetEnumerator();
-
-            //int bCounter = 0;
-            //int rCounter = 0;
-            //while ( projectileReader.MoveNext() )
-            //{
-            //    if ( projectileReader.Current is BeamProjectile )
-            //    {
-            //        beamAnimationList[bCounter].Draw(spriteBatch);
-            //        bCounter += 1;
-            //    }
-            //    else if ( projectileReader.Current is RocketProjectile )
-            //    {
-            //        rocketAnimationList[rCounter].Draw(spriteBatch);
-            //        rCounter += 1;
-            //    }
-            //}
-
-            //playerAnimation.Draw(spriteBatch);
+            playerAnimation.Draw(spriteBatch);
         }
 
         #endregion
@@ -196,14 +136,12 @@
         private void AddEnemyAnimation()
         {
             animations.Add(new Animation(AssetsManager.Instance.getTexture(GameAssets.ASSET_TEXTURE_MINE), Vector2.Zero, 96, 96, 10, 60, 0, AnimationType.MINE));
-            animations.Add(new Animation(AssetsManager.Instance.getTexture(GameAssets.ASSET_TEXTURE_EXPLOSION), Vector2.Zero, 96, 96, 16, 30, 0, AniamtionType.EXPLOSION));
+            animations.Add(new Animation(AssetsManager.Instance.getTexture(GameAssets.ASSET_TEXTURE_EXPLOSION), Vector2.Zero, 96, 96, 16, 30, 0, AnimationType.EXPLOSION));
         }
 
         private void AddProjectileAnimation()
         {
             animations.Add(new Animation(AssetsManager.Instance.getTexture(GameAssets.ASSET_TEXTURE_PROJECTILE), Vector2.Zero, 32, 8, 2, 60, 0, AnimationType.BEAM));
-            newProjAnim.Initialize(AssetsManager.Instance.getTexture(GameAssets.ASSET_TEXTURE_PROJECTILE), Vector2.Zero, 32, 8, 2, 60, 0);
-            beamAnimationList.Add(newProjAnim);
         }
 
         private void AddRocketAnimation()
