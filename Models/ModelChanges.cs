@@ -1,6 +1,6 @@
 ﻿namespace SSSG.Models
 {
-    enum ModelChanges
+    enum ModelChange
     {
         None,
         EnemySpawned,

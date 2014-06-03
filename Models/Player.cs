@@ -12,7 +12,7 @@
         private readonly int projectileEdge;    // limit at which the player's projectiles will be removed
 
         /// <summary>
-        /// Initializes an instance of Player.
+        /// Initializes an instance of the Player class.
         /// </summary>
         public Player()
         {
@@ -35,7 +35,12 @@
             projectiles = new List<Projectile>();
         }
 
-
+        /// <summary>
+        /// Fires a projectiles.
+        /// </summary>
+        /// <param name="type">the type of the projectile</param>
+        /// <returns>the fired projectile</returns>
+        /// <exception cref="ArgumentException">invalid projectile type has been provided.</exception>
         public Projectile Shoot(ProjectileType type)
         {
             Projectile projectile = ProjectileFactory.CreateProjectile(type, Position);
@@ -45,24 +50,33 @@
                 throw new ArgumentException(string.Format("The projectile type {0} is not valid.", type.ToString()));
             }
 
-            Projectiles.Add(projectile);
+            projectiles.Add(projectile);
             return projectile;
         }
 
+        /// <summary>
+        /// Updates the fired projectiles.
+        /// </summary>
         public void UpdateProjectiles()
         {
             foreach ( Projectile item in Projectiles )
             {
                 item.Update();
             }
-            Projectiles.RemoveAll((item) => (item.Position.X > projectileEdge || !item.IsAlive));
+            projectiles.RemoveAll((item) => (item.Position.X > projectileEdge || !item.IsAlive));
         }
 
-        public void ResetPlayerTilt()
+        /// <summary>
+        /// Resets the tilt.
+        /// </summary>
+        public void ResetTilt()
         {
             tilt = 0;
         }
 
+        /// <summary>
+        /// Gets the tilt.
+        /// </summary>
         public int Tilt
         {
             get
@@ -71,15 +85,22 @@
             }
         }
 
+        /// <summary>
+        /// Gets the player projectiles.
+        /// </summary>
         public List<Projectile> Projectiles
         {
             get
             {
                 return projectiles;
-            }
+            }   
         }
 
-        public void MovePlayerUp(GameTime gameTime)
+        /// <summary>
+        /// Moves the player ship up on the Y-axis.
+        /// </summary>
+        /// <param name="gameTime">the current game time</param>
+        public void MoveUp(GameTime gameTime)
         {
             if ( movementRect.Contains(new Point((int) Position.X, (int) (Position.Y - Speed * (int) gameTime.ElapsedGameTime.TotalMilliseconds / 100))) )
             {
@@ -90,7 +111,11 @@
             }
         }
 
-        public void MovePlayerDown(GameTime gameTime)
+        /// <summary>
+        /// Moves the player ship down on the Y-axis.
+        /// </summary>
+        /// <param name="gameTime">the current game time</param>
+        public void MoveDown(GameTime gameTime)
         {
             if ( movementRect.Contains(new Point((int) Position.X, (int) (Position.Y + Speed * (int) gameTime.ElapsedGameTime.TotalMilliseconds / 100))) )
             {
@@ -101,17 +126,11 @@
             }
         }
 
-        public void MovePlayerRight(GameTime gameTime)
-        {
-            if ( movementRect.Contains(new Point((int) (Position.X + Speed * (int) gameTime.ElapsedGameTime.TotalMilliseconds / 100), (int) Position.Y)) )
-            {
-                float x = Position.X + Speed * (int) gameTime.ElapsedGameTime.TotalMilliseconds / 100;
-                float y = Position.Y;
-                Position = new Vector2 { X = x, Y = y };
-            }
-        }
-
-        public void MovePlayerLeft(GameTime gameTime)
+        /// <summary>
+        /// Moves the player ship to the left on the X-axis.
+        /// </summary>
+        /// <param name="gameTime">the current game time</param>
+        public void MoveLeft(GameTime gameTime)
         {
             if ( movementRect.Contains(new Point((int) (Position.X - Speed * (int) gameTime.ElapsedGameTime.TotalMilliseconds / 100), (int) Position.Y)) )
             {
@@ -121,7 +140,24 @@
             }
         }
 
-        public override Rectangle ColisionBox
+        /// <summary>
+        /// Moves the player ship to the right on the X-axis.
+        /// </summary>
+        /// <param name="gameTime">the current game time</param>
+        public void MoveRight(GameTime gameTime)
+        {
+            if ( movementRect.Contains(new Point((int) (Position.X + Speed * (int) gameTime.ElapsedGameTime.TotalMilliseconds / 100), (int) Position.Y)) )
+            {
+                float x = Position.X + Speed * (int) gameTime.ElapsedGameTime.TotalMilliseconds / 100;
+                float y = Position.Y;
+                Position = new Vector2 { X = x, Y = y };
+            }
+        }
+
+        /// <summary>
+        /// Gets the collision box of the entity.
+        /// </summary>
+        public override Rectangle CollisionBox
         {
             get
             {

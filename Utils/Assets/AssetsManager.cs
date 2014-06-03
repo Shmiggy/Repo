@@ -8,18 +8,25 @@
 
     public class AssetsManager
     {
-        private static AssetsManager instance;
-        private static Object syncRoot = new Object();
+        #region log4net
+        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        #endregion
 
-        private Texture2D[] graphicAssets;
-        private SoundEffect[] soundFxAssets;
-        private Song[] songAssets;
-        private SpriteFont fontAsset;
+        private static AssetsManager instance;          // the AssetsManager instance
+        private static Object syncRoot = new Object();  // dummy object, used to lock access
 
-        private readonly string[] texAssetsList;
-        private readonly string[] soundAssetsList;
-        private readonly string[] songAssetsList;
+        private Texture2D[] graphicAssets;              // graphic assets
+        private SoundEffect[] soundFxAssets;            // sound effects assets
+        private Song[] songAssets;                      // music assets
+        private SpriteFont fontAsset;                   // font asset
 
+        private readonly string[] texAssetsList;        // textures paths
+        private readonly string[] soundAssetsList;      // sounds paths
+        private readonly string[] songAssetsList;       // songs paths
+
+        /// <summary>
+        /// Initializes a new instance of AssetsManager class.
+        /// </summary>
         private AssetsManager()
         {
             texAssetsList = new string[] { 
@@ -45,6 +52,11 @@
             };
         }
 
+        /// <summary>
+        /// Gets a particular asset.
+        /// </summary>
+        /// <param name="assetCounter">which asset to retrieve</param>
+        /// <returns>the found asset</returns>
         private Object GetAsset(int assetCounter)
         {
             if ( assetCounter >= 0 && assetCounter < (int) GameAssets.ASSET_TEXTURE_END )
@@ -62,95 +74,126 @@
             return fontAsset;
         }
 
-        public Texture2D getTexture(GameAssets counter)
+        /// <summary>
+        /// Gets the desired texture.
+        /// </summary>
+        /// <param name="counter">which texture to retrieve</param>
+        /// <returns>the found texture</returns>
+        public Texture2D GetTexture(GameAssets counter)
         {
             return AssetsManager.Instance.GetAsset((int) counter) as Texture2D;
         }
 
-        public SoundEffect getSoundFX(GameAssets counter)
+        /// <summary>
+        /// Gets the desired sound effect.
+        /// </summary>
+        /// <param name="counter">which sound effect to retrieve</param>
+        /// <returns>the found sound effect</returns>
+        public SoundEffect GetSoundFX(GameAssets counter)
         {
             return AssetsManager.Instance.GetAsset((int) counter) as SoundEffect;
         }
 
-        public Song getSong(GameAssets counter)
+        /// <summary>
+        /// Gets the desired song.
+        /// </summary>
+        /// <param name="counter">which song to retrieve</param>
+        /// <returns>the found song</returns>
+        public Song GetSong(GameAssets counter)
         {
             return AssetsManager.Instance.GetAsset((int) counter) as Song;
         }
 
-        public SpriteFont getSpriteFont()
+        /// <summary>
+        /// Gets the font sprite.
+        /// </summary>
+        /// <returns>the font sprite</returns>
+        public SpriteFont GetSpriteFont()
         {
             return AssetsManager.Instance.GetAsset(-1) as SpriteFont;
         }
 
-        // TODO: implement a more mature loging system, maybe log4net ??
+        /// <summary>
+        /// Loads the game assets
+        /// </summary>
+        /// <param name="Content">the content</param>
         public void LoadGameAssets(ContentManager Content)
         {
-            System.IO.StreamWriter file = new System.IO.StreamWriter("DataLoading.txt");
-            file.WriteLine("Asset initialization and loading in progress ...");
+            log.Info("Asset initialization and loading in progress ...");
+
             graphicAssets = new Texture2D[(int) GameAssets.ASSET_TEXTURE_END];
             soundFxAssets = new SoundEffect[(int) GameAssets.ASSET_SOUNDFX_END - (int) GameAssets.ASSET_TEXTURE_END - 1];
             songAssets = new Song[(int) GameAssets.ASSET_SONG_END - (int) GameAssets.ASSET_SOUNDFX_END - 1];
 
             Content.RootDirectory = "Content";
-            file.Write("Game font loading ...".PadRight(58));
+
+            log.Info("Game font loading ...".PadRight(58));
+
             fontAsset = Content.Load<SpriteFont>("Fonts/gameFont");
             if ( fontAsset != null )
             {
-                file.WriteLine("Done Succesfully");
+                log.Info("Done Succesfully");
             }
             else
             {
-                file.WriteLine("Failled");
+                log.Warn("Failled");
             }
 
             for ( int i = 0; i < (int) GameAssets.ASSET_TEXTURE_END; i++ )
             {
-                file.Write("Game texture " + texAssetsList[i].ToString().PadRight(45));
+                log.Info("Game texture " + texAssetsList[i].ToString().PadRight(45));
+
                 graphicAssets[i] = Content.Load<Texture2D>(texAssetsList[i]);
                 if ( graphicAssets[i] != null )
                 {
-                    file.WriteLine("Done Succesfully");
+                    log.Info("Done Succesfully");
                 }
                 else
                 {
-                    file.WriteLine("Failled");
+                    log.Warn("Failled");
                 }
             }
             for ( int i = 0; i < (int) GameAssets.ASSET_SOUNDFX_END - (int) GameAssets.ASSET_TEXTURE_END - 1; i++ )
             {
-                file.Write("Game soundFX " + soundAssetsList[i].ToString().PadRight(45));
+                log.Info("Game soundFX " + soundAssetsList[i].ToString().PadRight(45));
                 soundFxAssets[i] = Content.Load<SoundEffect>(soundAssetsList[i]);
                 if ( soundFxAssets[i] != null )
                 {
-                    file.WriteLine("Done Succesfully");
+                    log.Info("Done Succesfully");
                 }
                 else
                 {
-                    file.WriteLine("Failled");
+                    log.Warn("Failled");
                 }
             }
             for ( int i = 0; i < (int) GameAssets.ASSET_SONG_END - (int) GameAssets.ASSET_SOUNDFX_END - 1; i++ )
             {
-                file.Write("Game song files " + songAssetsList[i].ToString().PadRight(42));
+                log.Info("Game song files " + songAssetsList[i].ToString().PadRight(42));
                 songAssets[i] = Content.Load<Song>(songAssetsList[i]);
                 if ( songAssets[i] != null )
                 {
-                    file.WriteLine("Done Succesfully");
+                    log.Info("Done Succesfully");
                 }
                 else
                 {
-                    file.WriteLine("Failled");
+                    log.Warn("Failled");
                 }
             }
-            file.WriteLine("Loading operation finished !");
-            file.Close();
+            log.Info("Loading operation finished !");
         }
 
+        /// <summary>
+        /// Unloads the game assets
+        /// </summary>
+        /// <param name="Content">the content</param>
         public void UnloadGameAssets(ContentManager Content)
         {
             Content.Unload();
         }
 
+        /// <summary>
+        /// Gets the AssetsManager instance.
+        /// </summary>
         public static AssetsManager Instance
         {
             get

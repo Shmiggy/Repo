@@ -1,30 +1,30 @@
 namespace SSSG
 {
-    using System;
     using Microsoft.Xna.Framework;
     using Microsoft.Xna.Framework.Graphics;
     using Microsoft.Xna.Framework.Media;
-    using SSSG.Views;
-    using SSSG.Utils.Assets;
-    using System.Collections.Generic;
-    using SSSG.Models;
-    using SSSG.Utils.Patterns;
     using SSSG.Input;
+    using SSSG.Models;
+    using SSSG.Utils.Assets;
+    using SSSG.Views;
+    using System;
+    using System.Collections.Generic;
 
-    public class DeepSpaceShooterGame : Game, ISubject
+    public class DeepSpaceShooterGame : Game
     {
-        private GraphicsDeviceManager graphics;
-        private SpriteBatch spriteBatch;
+        private GraphicsDeviceManager graphics;         // graphics device
+        private SpriteBatch spriteBatch;                // the sprite batch
 
-        private Dictionary<GameState, IView> views;
-        private GameModel gameModel;
-        private Controller controller;
+        private Dictionary<GameState, IView> views;     // views by state
+        private GameModel gameModel;                    // the game model
+        private Controller controller;                  // the game controller
 
-        private static DeepSpaceShooterGame instance;
-        private static Object syncRoot = new Object();
+        private static DeepSpaceShooterGame instance;   // the DeepSpaceShooterGame instance
+        private static Object syncRoot = new Object();  // dummy object, used to lock
 
-        private List<IObserver> observers;
-
+        /// <summary>
+        /// Initializes a new instance of DeepSpaceShooterGame class.
+        /// </summary>
         private DeepSpaceShooterGame()
         {
             Window.Title = "Deep Space Shooter";
@@ -32,10 +32,11 @@ namespace SSSG
             graphics.IsFullScreen = false;
             graphics.PreferredBackBufferHeight = 600;
             graphics.PreferredBackBufferWidth = 800;
-
-            observers = new List<IObserver>();
         }
 
+        /// <summary>
+        /// Gets the current game state.
+        /// </summary>
         public GameState State
         {
             get
@@ -44,6 +45,9 @@ namespace SSSG
             }
         }
 
+        /// <summary>
+        /// Initializes the game data.
+        /// </summary>
         protected override void Initialize()
         {
             base.Initialize();
@@ -66,24 +70,32 @@ namespace SSSG
             this.views.Add(GameState.Game, gameView);
 
             MediaPlayer.IsRepeating = true;
-            MediaPlayer.Play(AssetsManager.Instance.getSong(GameAssets.ASSET_SONG_GAME_MUSIC));
+            MediaPlayer.Play(AssetsManager.Instance.GetSong(GameAssets.ASSET_SONG_GAME_MUSIC));
         }
 
+        /// <summary>
+        /// Loads assets.
+        /// </summary>
         protected override void LoadContent()
         {
             this.spriteBatch = new SpriteBatch(GraphicsDevice);
             AssetsManager.Instance.LoadGameAssets(Content);
         }
 
+        /// <summary>
+        /// Unloads assets.
+        /// </summary>
         protected override void UnloadContent()
         {
             AssetsManager.Instance.UnloadGameAssets(Content);
         }
 
+        /// <summary>
+        /// Update section of the game loop
+        /// </summary>
+        /// <param name="gameTime">current game time</param>
         protected override void Update(GameTime gameTime)
         {
-            Notify(gameTime);
-
             this.controller.Update(gameTime);
 
             this.views[State].Update(gameTime, this.gameModel);
@@ -91,6 +103,10 @@ namespace SSSG
             base.Update(gameTime);
         }
 
+        /// <summary>
+        ///  Draw section of the game loop
+        /// </summary>
+        /// <param name="gameTime">current game time</param>
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
@@ -102,6 +118,9 @@ namespace SSSG
             base.Draw(gameTime);
         }
 
+        /// <summary>
+        /// Gets the instance of DeepSpaceShooterGame.
+        /// </summary>
         public static DeepSpaceShooterGame Instance
         {
             get
@@ -120,29 +139,6 @@ namespace SSSG
                 return instance;
             }
         }
-
-
-        #region ISubject Members
-
-        public void AttachObserver(IObserver observer)
-        {
-            observers.Add(observer);
-        }
-
-        public void DetachObserver(IObserver observer)
-        {
-            observers.Remove(observer);
-        }
-
-        public void Notify(object payload)
-        {
-            foreach ( IObserver observer in observers )
-            {
-                observer.Update(this, payload);
-            }
-        }
-
-        #endregion
 
     }
 }

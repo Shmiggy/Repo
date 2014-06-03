@@ -4,10 +4,13 @@
 
     public abstract class BaseEntity : ICollidable
     {
-        private int health;
-        private float speed;
-        private Vector2 position;
+        private int health;         // how much damage can the entity receive
+        private float speed;        // how fast will the entity move
+        private Vector2 position;   // the location of the entity on the screen
 
+        /// <summary>
+        /// Gets or sets the health of the entity.
+        /// </summary>
         public int Health
         {
             get
@@ -20,6 +23,9 @@
             }
         }
 
+        /// <summary>
+        /// Gets or sets the speed of the entity.
+        /// </summary>
         public float Speed
         {
             get
@@ -32,6 +38,9 @@
             }
         }
 
+        /// <summary>
+        /// Gets or sets the position of the entity.
+        /// </summary>
         public Vector2 Position
         {
             get
@@ -44,17 +53,27 @@
             }
         }
 
+        /// <summary>
+        /// Returns whether or not the entity collides with another collidable entity.
+        /// </summary>
+        /// <param name="other">another collidable entity</param>
+        /// <returns></returns>
         public bool CollidesWith(ICollidable other)
         {
-            return !(other.ColisionBox.Left > this.ColisionBox.Right ||
-                       other.ColisionBox.Right < this.ColisionBox.Left ||
-                       other.ColisionBox.Top > this.ColisionBox.Bottom ||
-                       other.ColisionBox.Bottom < this.ColisionBox.Top);
+            return !(other.CollisionBox.Left > this.CollisionBox.Right ||
+                       other.CollisionBox.Right < this.CollisionBox.Left ||
+                       other.CollisionBox.Top > this.CollisionBox.Bottom ||
+                       other.CollisionBox.Bottom < this.CollisionBox.Top);
         }
 
-        // Template Pattern
-        public abstract Rectangle ColisionBox { get; }
+        /// <summary>
+        /// Gets the collision box of the entity.
+        /// </summary>
+        public abstract Rectangle CollisionBox { get; }
 
+        /// <summary>
+        /// Returns whether or not the entity is still alive.
+        /// </summary>
         public bool IsAlive
         {
             get
@@ -63,6 +82,10 @@
             }
         }
 
+        /// <summary>
+        /// Inflicts a certain amount of damage to the current entity.
+        /// </summary>
+        /// <param name="damageValue">amount of damage</param>
         public void TakeDamage(int damageValue)
         {
             Health -= damageValue;

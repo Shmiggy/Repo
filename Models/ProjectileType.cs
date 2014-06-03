@@ -5,9 +5,9 @@
     public enum ProjectileType
     {
         None,
-        [StringValue("SSSG.Models.BeamProjectile")]
+        [ClassPath("SSSG.Models.BeamProjectile")]
         Beam,
-        [StringValue("SSSG.Models.RocketProjectile")]
+        [ClassPath("SSSG.Models.RocketProjectile")]
         Rocket
     }
 }

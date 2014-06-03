@@ -6,24 +6,30 @@
     using SSSG.Utils.Assets;
     using SSSG.Utils.Patterns;
     using System.Collections.Generic;
-    using System.Linq;
 
     public class GameView : IView, IObserver
     {
-        private SpriteBatch spriteBatch;
+        private SpriteBatch spriteBatch;                // the sprite batch
 
-        private AnimatedBackground backgroundAnimation;
-        private List<Animation> animations;
+        private AnimatedBackground backgroundAnimation; // background animation
+        private Animation playerAnimation;              // ship animation
 
-        //private List<Animation> beamAnimationList;
-        //private List<Animation> rocketAnimationList;
-        //private List<Animation> mineAnimationList;
-        //private List<Animation> explosionAnimationList;
+        private List<Animation> beamAnimationList;      // animations for beam projectiles
+        private List<Animation> rocketAnimationList;    // animations for rocket projectiles
+        private List<Animation> mineAnimationList;      // animations for mines
+        private List<Animation> explosionAnimationList; // animations for explosions
 
+        /// <summary>
+        /// Initializes a new Intance of GameView class.
+        /// </summary>
         public GameView()
         {
         }
 
+        /// <summary>
+        /// Initializes a new intance of GameView class.
+        /// </summary>
+        /// <param name="spriteBatch">the sprite batch</param>
         public GameView(SpriteBatch spriteBatch)
         {
             Initialize(spriteBatch);
@@ -31,138 +37,200 @@
 
         #region IView Members
 
+        /// <summary>
+        /// Initializes the view
+        /// </summary>
+        /// <param name="spriteBatch">the sprite batch</param>
         public void Initialize(SpriteBatch spriteBatch)
         {
             this.spriteBatch = spriteBatch;
 
-            animations = new List<Animation>();
-            animations.Add(new Animation(AssetsManager.Instance.getTexture(GameAssets.ASSET_TEXTURE_REAPER), Vector2.Zero, 128, 96, 11, 45, 5, AnimationType.PLAYER));
+            beamAnimationList = new List<Animation>();
+            rocketAnimationList = new List<Animation>();
+            mineAnimationList = new List<Animation>();
+            explosionAnimationList = new List<Animation>();
+
+            playerAnimation = new Animation();
+            playerAnimation.Initialize(AssetsManager.Instance.GetTexture(GameAssets.ASSET_TEXTURE_REAPER), Vector2.Zero, 128, 96, 11, 45, 5);
 
             backgroundAnimation = new AnimatedBackground();
-            backgroundAnimation.Initialize(AssetsManager.Instance.getTexture(GameAssets.ASSET_TEXTURE_STARS), 800, 1);
+            backgroundAnimation.Initialize(AssetsManager.Instance.GetTexture(GameAssets.ASSET_TEXTURE_STARS), 800, 1);
         }
 
-        // TODO: take a deep breath and refactor this
-        // *Quietly walking away :-" *  -- Alex
+        /// <summary>
+        /// Updates the view.
+        /// </summary>
+        /// <param name="gameTime">the current game time</param>
+        /// <param name="model">the current game model</param>
         public void Update(GameTime gameTime, IGameModel model)
         {
             // the view receives a stripped-down, read-only version of the model
 
-            Enemy[] enemies = model.OnScreenEnemies;
-            List<Projectile> rocketProjectiles = (from p in model.OnScreenProjectiles where p is RocketProjectile select p).ToList();
-            List<Projectile> beamProjetiles = (from p in model.OnScreenProjectiles where p is BeamProjectile select p).ToList();
-            int enemyCount = 0;
-            int rocketCount = 0;
-            int beamCount = 0;
+            IEnumerable<Enemy> enemies = model.OnScreenEnemies;
+            IEnumerable<Projectile> projectiles = model.OnScreenProjectiles;
 
             backgroundAnimation.Update();
+            playerAnimation.UpdateByInput(gameTime, model.ShipTilt, model.ShipPosition);
 
-            for(int i = 0; i < animations.Count; ++i)
+            IEnumerator<Enemy> enemyReader = enemies.GetEnumerator();
+
+            int enemyCounter = 0;
+            while ( enemyReader.MoveNext() )
             {
-                Animation animation = animations[i];
-                switch (animation.Type)
+                if ( enemyReader.Current.IsAlive )
                 {
-                    case AnimationType.PLAYER:
-                        animation.UpdateByInput(gameTime, model.ShipTilt, model.ShipPosition);
-                        break;
-                    case AnimationType.MINE:
-                        if(enemyCount >= enemies.Length)
-                        {
-                            animation.ToBeRemoved = true;
-                            animations[i+1].ToBeRemoved = true;
-                            break;
-                        }
+                    mineAnimationList[enemyCounter].Update(gameTime, enemyReader.Current.Position);
+                }
+                else
+                {
+                    explosionAnimationList[enemyCounter].Update(gameTime, enemyReader.Current.Position);
+                }
+                enemyCounter += 1;
+            }
 
-                        if(!enemies[enemyCount].IsAlive)
-                        {
-                            ++i;
-                            animation = animations[i];
-                            animation.ToBeRemoved = true;
-                            animations[i-1].ToBeRemoved = true;
-                        }
-                        animation.Update(gameTime, enemies[enemyCount].Position);
-                        ++enemyCount;
-                        break;
-                    case AnimationType.EXPLOSION:
-                        //treated in MINE case
-                        break;
-                    case AnimationType.BEAM:
-                        if ( beamCount >= beamProjetiles.Count )
-                        {
-                            animation.ToBeRemoved = true;
-                            break;
-                        }
-                        animation.Update(gameTime, beamProjetiles[beamCount].Position);
-                        ++beamCount;
-                        break;
-                    case AnimationType.ROCKET:
-                        if ( rocketCount >= rocketProjectiles.Count )
-                        {
-                            animation.ToBeRemoved = true;
-                            break;
-                        }
-                        animation.Update(gameTime, rocketProjectiles[rocketCount].Position);
-                        ++rocketCount;
-                        break;
-                    default:
-                        //wrong animation type WTF ? 
-                        break;
+            if ( enemyCounter < mineAnimationList.Count )
+            {
+                mineAnimationList.RemoveRange(enemyCounter, mineAnimationList.Count - enemyCounter);
+                explosionAnimationList.RemoveRange(enemyCounter, explosionAnimationList.Count - enemyCounter);
+            }
+
+            IEnumerator<Projectile> projectileReader = projectiles.GetEnumerator();
+
+            int beamCounter = 0;
+            int rocketCounter = 0;
+            while ( projectileReader.MoveNext() )
+            {
+                if ( projectileReader.Current is BeamProjectile )
+                {
+                    beamAnimationList[beamCounter].Update(gameTime, projectileReader.Current.Position);
+                    beamCounter += 1;
+                }
+                else if ( projectileReader.Current is RocketProjectile )
+                {
+                    rocketAnimationList[rocketCounter].Update(gameTime, projectileReader.Current.Position);
+                    rocketCounter += 1;
                 }
             }
 
-            animations.RemoveAll((item) => item.ToBeRemoved);
+            if ( beamCounter < beamAnimationList.Count )
+            {
+                beamAnimationList.RemoveRange(beamCounter, beamAnimationList.Count - beamCounter);
+            }
+
+            if ( rocketCounter < rocketAnimationList.Count )
+            {
+                rocketAnimationList.RemoveRange(rocketCounter, rocketAnimationList.Count - rocketCounter);
+            }
+
         }
 
+        /// <summary>
+        /// Draws the view.
+        /// </summary>
+        /// <param name="model">the current game model</param>
         public void Draw(IGameModel model)
         {
-            backgroundAnimation.Draw(spriteBatch);
-            Animation playerAnimation = null;
+            IEnumerable<Enemy> enemies = model.OnScreenEnemies;
+            IEnumerable<Projectile> projectiles = model.OnScreenProjectiles;
 
-            foreach (Animation animation in animations)
+            backgroundAnimation.Draw(spriteBatch);
+
+            IEnumerator<Enemy> enemyReader = enemies.GetEnumerator();
+
+            int enemyCounter = 0;
+            while ( enemyReader.MoveNext() )
             {
-                if(animation.Type == AnimationType.PLAYER)
+                if ( enemyReader.Current.IsAlive )
                 {
-                    playerAnimation = animation;
-                    continue;
+                    mineAnimationList[enemyCounter].Draw(spriteBatch);
                 }
-                animation.Draw(spriteBatch);
+                else
+                {
+                    explosionAnimationList[enemyCounter].Draw(spriteBatch);
+                }
+                enemyCounter += 1;
+            }
+
+            IEnumerator<Projectile> projectileReader = projectiles.GetEnumerator();
+
+            int beamCounter = 0;
+            int rocketCounter = 0;
+            while ( projectileReader.MoveNext() )
+            {
+                if ( projectileReader.Current is BeamProjectile )
+                {
+                    beamAnimationList[beamCounter].Draw(spriteBatch);
+                    beamCounter += 1;
+                }
+                else if ( projectileReader.Current is RocketProjectile )
+                {
+                    rocketAnimationList[rocketCounter].Draw(spriteBatch);
+                    rocketCounter += 1;
+                }
             }
 
             playerAnimation.Draw(spriteBatch);
+
+            SpriteFont font = AssetsManager.Instance.GetSpriteFont();
+
+            string value = model.ShipHealth.ToString();
+            spriteBatch.DrawString(font, value, new Vector2(10f, 10f), new Color(0xFF, 0x00, 0x00));
         }
 
         #endregion
 
+        /// <summary>
+        /// Adds an enemy animation.
+        /// </summary>
         private void AddEnemyAnimation()
         {
-            animations.Add(new Animation(AssetsManager.Instance.getTexture(GameAssets.ASSET_TEXTURE_MINE), Vector2.Zero, 96, 96, 10, 60, 0, AnimationType.MINE));
-            animations.Add(new Animation(AssetsManager.Instance.getTexture(GameAssets.ASSET_TEXTURE_EXPLOSION), Vector2.Zero, 96, 96, 16, 30, 0, AnimationType.EXPLOSION));
+            Animation newMineAnim = new Animation();
+            newMineAnim.Initialize(AssetsManager.Instance.GetTexture(GameAssets.ASSET_TEXTURE_MINE), Vector2.Zero, 96, 96, 10, 60, 0);
+            mineAnimationList.Add(newMineAnim);
+            Animation newExplosionAnim = new Animation();
+            newExplosionAnim.Initialize(AssetsManager.Instance.GetTexture(GameAssets.ASSET_TEXTURE_EXPLOSION), Vector2.Zero, 96, 96, 16, 30, 0);
+            explosionAnimationList.Add(newExplosionAnim);
         }
 
+        /// <summary>
+        /// Adds an projectile animation.
+        /// </summary>
         private void AddProjectileAnimation()
         {
-            animations.Add(new Animation(AssetsManager.Instance.getTexture(GameAssets.ASSET_TEXTURE_PROJECTILE), Vector2.Zero, 32, 8, 2, 60, 0, AnimationType.BEAM));
+            Animation newProjAnim = new Animation();
+            newProjAnim.Initialize(AssetsManager.Instance.GetTexture(GameAssets.ASSET_TEXTURE_PROJECTILE), Vector2.Zero, 32, 8, 2, 60, 0);
+            beamAnimationList.Add(newProjAnim);
         }
 
+        /// <summary>
+        /// Adds an rocket animation.
+        /// </summary>
         private void AddRocketAnimation()
         {
-            animations.Add(new Animation(AssetsManager.Instance.getTexture(GameAssets.ASSET_TEXTURE_ROCKET), Vector2.Zero, 64, 16, 6, 60, 0, AnimationType.ROCKET));
+            Animation newRocketAnim = new Animation();
+            newRocketAnim.Initialize(AssetsManager.Instance.GetTexture(GameAssets.ASSET_TEXTURE_ROCKET), Vector2.Zero, 64, 16, 6, 60, 0);
+            rocketAnimationList.Add(newRocketAnim);
         }
 
         #region IObserver Members
 
+        /// <summary>
+        /// Updates the current observer.
+        /// </summary>
+        /// <param name="subject">the sender</param>
+        /// <param name="payload">data sent</param>
         public void Update(ISubject subject, object payload)
         {
-            ModelChanges command = (ModelChanges) payload;
+            ModelChange command = (ModelChange) payload;
             switch ( command )
             {
-                case ModelChanges.EnemySpawned:
+                case ModelChange.EnemySpawned:
                     AddEnemyAnimation();
                     break;
-                case ModelChanges.RocketProjectileSpawned:
+                case ModelChange.RocketProjectileSpawned:
                     AddRocketAnimation();
                     break;
-                case ModelChanges.BeamProjectileSpawned:
+                case ModelChange.BeamProjectileSpawned:
                     AddProjectileAnimation();
                     break;
             }
