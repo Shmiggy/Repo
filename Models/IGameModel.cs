@@ -29,5 +29,10 @@
         /// Gets the health of the ship.
         /// </summary>
         int ShipHealth { get; }
+
+        /// <summary>
+        /// Gets the players score.
+        /// </summary>
+        int PlayerScore { get; }
     }
 }

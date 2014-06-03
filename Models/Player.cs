@@ -10,6 +10,7 @@
         private Rectangle movementRect;         // area the player can move into
         private List<Projectile> projectiles;   // all projectiles produced by the player
         private readonly int projectileEdge;    // limit at which the player's projectiles will be removed
+        private int score;                      // player score so far
 
         /// <summary>
         /// Initializes an instance of the Player class.
@@ -27,6 +28,7 @@
         {
             Vector2 startLocation = new Vector2 { X = 125, Y = 300 };
 
+            score = 0;
             Health = 100;
             Speed = 15.0f;
             tilt = 0;
@@ -82,6 +84,21 @@
             get
             {
                 return tilt;
+            }
+        }
+            
+        /// <summary>
+        /// Gets or sets the player score.
+        /// </summary>
+        public int Score
+        {
+            get
+            {
+                return score;
+            }
+            set
+            {
+                score = value;
             }
         }
 

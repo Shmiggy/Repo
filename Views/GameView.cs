@@ -173,8 +173,8 @@
 
             SpriteFont font = AssetsManager.Instance.GetSpriteFont();
 
-            string value = model.ShipHealth.ToString();
-            spriteBatch.DrawString(font, value, new Vector2(10f, 10f), new Color(0xFF, 0x00, 0x00));
+            spriteBatch.DrawString(font, model.ShipHealth.ToString(), new Vector2(10f, 10f), new Color(0xFF, 0x00, 0x00));
+            spriteBatch.DrawString(font, model.PlayerScore.ToString(), new Vector2(10f, 30f), new Color(0xFF, 0xFF, 0x00));
         }
 
         #endregion

@@ -4,6 +4,7 @@
     using SSSG.Utils.Patterns;
     using System.Collections.Generic;
 
+
     public class GameModel : ISubject, IGameModel
     {
         private List<Enemy> screenEnemies;      // for now, holds a list with space mines (enemies)
@@ -61,19 +62,19 @@
         /// <param name="gameTime"></param>
         public void Update(GameTime gameTime)
         {
-            if ( State == GameState.Game )
+            if (State == GameState.Game)
             {
                 updateEnemies(gameTime);
                 updateProjectiles();
                 updateColisions();
             }
 
-            if ( beamCoolDown != 0 )
+            if (beamCoolDown != 0)
             {
                 beamCoolDown = (beamCoolDown + 1) % 10;
             }
 
-            if ( rocketCoolDown != 0 )
+            if (rocketCoolDown != 0)
             {
                 rocketCoolDown = (rocketCoolDown + 1) % 50;
             }
@@ -84,11 +85,11 @@
         /// </summary>
         private void updateColisions()
         {
-            foreach ( var enemy in screenEnemies )
+            foreach (var enemy in screenEnemies)
             {
-                foreach ( var proj in currentPlayer.Projectiles )
+                foreach (var proj in currentPlayer.Projectiles)
                 {
-                    if ( proj.IsAlive && proj.CollidesWith(enemy) )
+                    if (proj.IsAlive && proj.CollidesWith(enemy))
                     {
                         enemy.TakeDamage(proj.Damage);
                         proj.TakeDamage(proj.Health);
@@ -96,9 +97,9 @@
                 }
             }
 
-            foreach ( var enemy in screenEnemies )
+            foreach (var enemy in screenEnemies)
             {
-                if ( enemy.CollidesWith(currentPlayer) )
+                if (enemy.CollidesWith(currentPlayer))
                 {
                     currentPlayer.TakeDamage(enemy.Damage);
                     enemy.TakeDamage(enemy.Health);
@@ -121,7 +122,7 @@
         private void updateEnemies(GameTime gameTime)
         {
             enemyCoolDown += currentGameLevel;
-            if ( enemyCoolDown >= 500 ) // wtf is 500? rate at which enemies are spawned?
+            if (enemyCoolDown >= 500) // wtf is 500? rate at which enemies are spawned?
             {
                 Enemy newEnemy = new Enemy();
                 newEnemy.Initialize();
@@ -129,11 +130,13 @@
                 Notify(ModelChange.EnemySpawned);
             }
             enemyCoolDown %= 500;
-            foreach ( Enemy item in screenEnemies )
+            foreach (Enemy item in screenEnemies)
             {
                 item.Update(gameTime);
             }
-            screenEnemies.RemoveAll((item) => (item.Position.X < -100 || !item.IsAlive));
+            screenEnemies.RemoveAll((item) => (item.Position.X < -100));
+            int killedEnemies = screenEnemies.RemoveAll((item) => (!item.IsAlive));
+            currentPlayer.Score += killedEnemies;
         }
 
         /// <summary>
@@ -143,14 +146,14 @@
         /// <returns>whether or not the projectile was fired successfully.</returns>
         public bool FirePlayerProjectile(ProjectileType type)
         {
-            if ( type == ProjectileType.Beam && beamCoolDown == 0 )
+            if (type == ProjectileType.Beam && beamCoolDown == 0)
             {
                 fireBeam();
                 beamCoolDown += 1;
                 Notify(ModelChange.BeamProjectileSpawned);
                 return true;
             }
-            else if ( type == ProjectileType.Rocket && rocketCoolDown == 0 )
+            else if (type == ProjectileType.Rocket && rocketCoolDown == 0)
             {
                 fireRocket();
                 rocketCoolDown += 1;
@@ -264,7 +267,7 @@
         /// <param name="payload">data to be sent</param>
         public void Notify(object payload)
         {
-            foreach ( IObserver observer in observers )
+            foreach (IObserver observer in observers)
             {
                 observer.Update(this, payload);
             }
@@ -329,6 +332,18 @@
             }
         }
 
+        /// <summary>
+        /// Gets the players score.
+        /// </summary>
+        public int PlayerScore
+        {
+            get
+            {
+                return currentPlayer.Score;
+            }
+        }
+
         #endregion
+
     }
 }
